@@ -1,0 +1,22 @@
+# Basic
+numpy<=1.26
+argparse
+tqdm
+scipy
+# Vision
+opencv-python
+pyrender
+matplotlib
+trimesh
+# MANO
+smplx
+chumpy@git+https://github.com/mattloper/chumpy
+# MediaPipe
+mediapipe
+# HaMeR
+einops
+lightning==2.4.0
+yacs
+omegaconf
+hydra-core
+timm
