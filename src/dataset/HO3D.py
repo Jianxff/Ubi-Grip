@@ -24,8 +24,6 @@ SO3_OPENCV_TO_OPENGL = np.array([
 ]).astype(np.float32)
 
 
-
-
 """
 HO3D data organization:
     calibration  

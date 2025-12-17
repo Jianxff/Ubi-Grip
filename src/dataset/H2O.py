@@ -165,6 +165,7 @@ class H2O_Seq(BaseSeq):
         data = data[1:].reshape(4, 4)
         trans = data[:3, 3]
         rot = data[:3, :3]
+        # rot = rot * SO3_OPENCV_TO_OPENGL
         rot = rot @ ROTMAT_OPENCV_TO_OPENGL   # OpenCV to OpenGL coordinate
         pose = np.eye(4, dtype=np.float32)
         pose[:3, :3] = rot
@@ -193,3 +194,24 @@ class H2O_Seq(BaseSeq):
         x1, y1 = np.min(handJoints2D, axis=0)
         x2, y2 = np.max(handJoints2D, axis=0)
         return convert_bbox([x1, y1, x2, y2])
+
+
+    def unload(self):
+        if self.preloaded:
+            del self.rgb
+            del self.pose
+            del self.hand
+
+    def __del__(self):
+        for img in self.rgb:
+            if isinstance(img, np.ndarray):
+                del img
+        for pose in self.pose:
+            if isinstance(pose, np.ndarray):
+                del pose
+        for hand in self.hand:
+            if isinstance(hand, np.ndarray):
+                del hand
+        self.rgb = []
+        self.pose = []
+        self.hand = []

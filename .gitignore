@@ -15,5 +15,6 @@ build
 *.meta
 
 output/*
+output2/*
 data/ckpt/*
 data/obj_meta/*

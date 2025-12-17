@@ -62,10 +62,15 @@ class BaseSeq(Dataset):
     def __getitem__(self, idx):
         rgb = self.get_rgb_image(idx)
         obj_pose = self.get_object_pose(idx)
-        hand_pose = self.get_handbbox(idx)
+        hand_bbox = self.get_handbbox(idx)
         metadata = {
             'obj_pose': obj_pose,
-            'hand_pose': hand_pose
+            'hand_bbox': hand_bbox
         }
 
         return rgb, metadata
+
+
+    def __del__(self):
+        """Clean up resources if necessary."""
+        pass

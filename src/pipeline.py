@@ -49,14 +49,21 @@ class HandFilter:
             self.last_rotation = self.result['orient'].astype(np.float32)
             self.last_trans = self.result['bias'].astype(np.float32)
         # update hand reconstruction
+        st = time.time()
         result = self.hamer.predict(image_rgb=image_rgb, detections=[detections])[0]
+        time_pred = (time.time() - st) * 1000
+        # print(f"Hand prediction time: {time_pred:.2f} ms")
+
         # print(result['bias'])
+        st = time.time()
         hand_mesh = self.hamer.create_trimesh(result=result, is_right=detections[1])
         # render hand mesh
         self.renderer.add(name='hand', mesh=hand_mesh, color=self.renderer.COLOR_BLUE, replace=True)
         # update hand mask
         hand_mask = self.renderer.render_mask()
         self.hand_mask = cv2.dilate(hand_mask, np.ones((3, 3), np.uint8), iterations=1)
+        time_render = (time.time() - st) * 1000
+        # print(f"Hand mask rendering time: {time_render:.2f} ms")
         # update rotation
         rotation = result['orient'].astype(np.float32) # OpenCV coordinate
         trans = result['bias'].astype(np.float32)
@@ -64,6 +71,7 @@ class HandFilter:
             self.delta_rotation = rotation @ np.linalg.inv(self.last_rotation)
             self.delta_trans = trans - self.last_trans
         self.result = result
+        return time_pred, time_render
 
     def render_hand(self) -> np.ndarray:
         return self.renderer.render_color()
@@ -134,7 +142,10 @@ class ObjectTracker:
         # update variables
         self.last_pose = self.obj_model.pose.copy() # OpenCV coordinate
         # update object tracking
+        st = time.time()
         self.obj_tracker.update(image=image, mask=mask)
+        # print(f"Object tracking time: {(time.time() - st) * 1000:.2f} ms")
+
         self.valid_percentage = self.obj_model.valid_line_prop
         self.pose = self.obj_model.pose.copy() # OpenCV coordinate
         self.pose_gl = self.pose * SE3_OPENCV_TO_OPENGL
@@ -163,6 +174,12 @@ class ObjectTracker:
         if not self.use_renderer:
             raise ValueError('Renderer is not initialized')
         return self.renderer.render_image(image_rgb=image_rgb)
+
+    def __del__(self):
+        if self.use_renderer:
+            del self.renderer
+        del self.obj_tracker
+        del self.obj_model
 
 
 class HandObjectTrackingPipeline:

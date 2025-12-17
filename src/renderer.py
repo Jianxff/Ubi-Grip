@@ -1,4 +1,5 @@
 ### standard library
+import os
 from typing import *
 from pathlib import Path
 ### third party
@@ -8,6 +9,7 @@ import trimesh
 # import open3d as o3d
 import cv2
 
+os.environ['PYOPENGL_PLATFORM'] = 'egl'
 
 class Renderer:
     COLOR_BLUE = (0.65, 0.74, 0.86)
